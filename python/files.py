@@ -324,8 +324,10 @@ def flModDate(filename, dateformat='%Y-%m-%d %H:%M:%S'):
         LOGGER.exception('Input file is not a valid file: %s' % (filename))
         raise IOError('Input file is not a valid file: %s' % (filename))
     moddate = localtime(si.st_mtime)
-
-    return strftime(dateformat, moddate)
+    if dateformat:
+        return strftime(dateformat, moddate)
+    else:
+        return moddate
 
 
 def flSize(filename):

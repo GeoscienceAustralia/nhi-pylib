@@ -18,7 +18,7 @@ from os.path import join as pjoin
 import logging
 import configparser
 
-from .files import flGetStat, flModDate
+from files import flGetStat, flModDate
 
 LOGGER = logging.getLogger()
 
@@ -35,7 +35,7 @@ def pInit(configFile):
     config.read(configFile)
     pConfigFile(configFile)
     pDatFileName(config.get('Files', 'DatFile'))
-    pArchiveDir(config.get('Files', 'ArchiveDir))
+    pArchiveDir(config.get('Files', 'ArchiveDir'))
     pArchiveDateFormat(config.get('Files', 'ArchiveDateFormat'))
 
 def pConfigFile(configFile=None):
