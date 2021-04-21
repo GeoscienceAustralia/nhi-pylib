@@ -31,12 +31,15 @@ GLOBAL_TIMESTAMP = True
 
 def pInit(configFile):
 
-    config = configparser()
+    config = configparser.ConfigParser(allow_no_value=True,
+                          interpolation=configparser.ExtendedInterpolation())
+    config.optionxform = str
     config.read(configFile)
     pConfigFile(configFile)
     pDatFileName(config.get('Files', 'DatFile'))
+    pGetProcessedFiles(GLOBAL_DATFILE)
     pArchiveDir(config.get('Files', 'ArchiveDir'))
-    pArchiveDateFormat(config.get('Files', 'ArchiveDateFormat'))
+    pArchiveDateFormat(config.get('Files', 'ArchiveDateFormat', fallback=GLOBAL_DATEFMT))
 
 def pConfigFile(configFile=None):
     """
@@ -104,7 +107,7 @@ def pGetProcessedEntry(directory, filename, attribute):
     :returns: Attribute value
 
     """
-
+    LOGGER.debug(f"Checking processed files for {filename} with {attribute}")
     try:
         value = GLOBAL_PROCFILES[directory][filename][attribute]
         rc = value
@@ -124,7 +127,7 @@ def pGetProcessedFiles(datFileName=None):
     :rtype: bool
 
     """
-
+    LOGGER.debug("Retrieving previously processed files")
     global GLOBAL_DATFILE
     rc = 0
     if datFileName:
@@ -133,11 +136,10 @@ def pGetProcessedFiles(datFileName=None):
             fh = open(datFileName)
 
         except IOError:
-            LOGGER.warn("Couldn't open dat file %s", datFileName)
+            LOGGER.warn(f"Couldn't open dat file {datFileName}")
             return rc
         else:
-            LOGGER.debug("Getting previously-processed files from %s",
-                         datFileName)
+            LOGGER.debug(f"Getting previously-processed files from {datFileName}")
             for line in fh:
                 line.rstrip('\n')
                 directory, filename, moddate, md5sum = line.split('|')
@@ -171,9 +173,10 @@ def pWriteProcessedFile(filename):
     if GLOBAL_DATFILE:
         directory, fname, md5sum, moddate = flGetStat(filename)
         try:
+            LOGGER.debug(f"Opening dat file {GLOBAL_DATFILE} for writing")
             fh = open(GLOBAL_DATFILE, 'a')
         except IOError:
-            LOGGER.info("Cannot open %s", GLOBAL_DATFILE)
+            LOGGER.info(f"Cannot open {GLOBAL_DATFILE}")
 
         else:
             pSetProcessedEntry(directory, fname, 'md5sum', md5sum)
@@ -183,7 +186,7 @@ def pWriteProcessedFile(filename):
             rc = 1
     else:
         LOGGER.warn(("Dat file name not provided. "
-                     "Can't record %s as processed."), filename)
+                     f"Can't record {filename} as processed."))
 
     return rc
 
@@ -202,7 +205,7 @@ def pDeleteDatFile():
     if os.unlink(GLOBAL_DATFILE):
         rc = 1
     else:
-        LOGGER.warn("Cannot remove dat file %s", GLOBAL_DATFILE)
+        LOGGER.warn(f"Cannot remove dat file {GLOBAL_DATFILE}")
     return rc
 
 def pAlreadyProcessed(directory, filename, attribute, value):
@@ -308,8 +311,9 @@ def pMoveFile(origin, destination):
     """
     try:
         os.rename(origin, destination)
-    except OSError:
-        LOGGER.warn("Error moving %s to %s", origin, destination)
+    except OSError as excmsg:
+        LOGGER.warning("Error moving %s to %s", origin, destination)
+        LOGGER.warning(excmsg)
         rc = 0
     else:
         LOGGER.debug("%s moved to %s", origin, destination)
@@ -331,6 +335,7 @@ def pArchiveFile(filename):
     path, ext = os.path.splitext(filename)
     path, base = os.path.split(path)
     archive_dir = pArchiveDir()
+    LOGGER.debug(f"Archiving {filename} to {archive_dir}")
     ext = ext.lstrip('.')
     if archive_dir:
         if os.path.isdir(archive_dir):
