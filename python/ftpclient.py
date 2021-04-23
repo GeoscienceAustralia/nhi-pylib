@@ -45,9 +45,10 @@ class _FTP(FTP):
         # Attributes that need to be defined when the 
         # class is instantiated:
         self.registered = config.getboolean('Options', 'Registered',
-                                              fallback=False)
+                                            fallback=False)
         self.datfilename = config.get('Files', 'DatFile')
-        self.new_dat_file = config.get('Files', 'NewDatFile', fallback=False)
+        self.new_dat_file = config.getboolean('Files', 'NewDatFile',
+                                              fallback=False)
         self.getProcessedFiles()
         if self.new_dat_file:
             self.DeleteDatFile()
