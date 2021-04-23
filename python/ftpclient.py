@@ -256,8 +256,10 @@ class _FTP(FTP):
         if ret == self.g_transfer_complete:
             return True
         elif ret == self.g_transfer_failed:
+            os.unlink(destfile)
             return False
         else:
+            os.unlink(destfile)
             return False
 
     def retrbinary(self, filename, newfilename=None):
@@ -280,6 +282,7 @@ class _FTP(FTP):
         if ret == self.g_transfer_complete:
             return True
         else:
+            os.unlink(destfile)
             return False
 
     def mget(self, inputfile, recursive=False, newfilename=None):
