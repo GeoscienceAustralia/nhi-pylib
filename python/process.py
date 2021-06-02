@@ -17,6 +17,7 @@ import os
 from os.path import join as pjoin
 import logging
 import configparser
+import shutil
 
 from files import flGetStat, flModDate
 
@@ -310,7 +311,7 @@ def pMoveFile(origin, destination):
 
     """
     try:
-        os.rename(origin, destination)
+        shutil.move(origin, destination)
     except OSError as excmsg:
         LOGGER.warning("Error moving %s to %s", origin, destination)
         LOGGER.warning(excmsg)
