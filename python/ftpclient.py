@@ -8,7 +8,7 @@ from ftplib import FTP
 from datetime import datetime
 import time
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger(__name__)
 
 global CONFIGFILE
 
@@ -427,6 +427,8 @@ class _FTP(FTP):
 
             if re.match("^host$", cmd):
                 self.hostname = myargs[0]
+            elif re.match("^port$", cmd):
+                self.port = myargs[0]
             elif re.match("^options$", cmd):
                 self.options = ' '.join(myargs)
             elif re.match("^connect$", cmd, re.I):

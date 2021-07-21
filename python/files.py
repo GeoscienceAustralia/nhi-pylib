@@ -9,7 +9,7 @@ from git import Repo
 
 import hashlib
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger(__name__)
 
 if not getattr(__builtins__, "WindowsError", None):
     class WindowsError(OSError):
@@ -148,7 +148,10 @@ def flGetStat(filename, CHUNK=2 ** 16):
     """
     Get basic statistics of filename - namely directory, name (excluding
     base path), md5sum and the last modified date. Useful for checking
-    if a file has previously been processed.
+    if a file has previously been processed. 
+
+    NOTE: This can be slow for large files, as the file is opened and read to
+    evaluate the MD5 checksum.
 
     :param str filename: Filename to check.
     :param int CHUNK: (optional) chunk size (for md5sum calculation).

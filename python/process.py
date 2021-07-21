@@ -21,7 +21,7 @@ import shutil
 
 from files import flGetStat, flModDate
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger(__name__)
 
 GLOBAL_DATFILE = None
 GLOBAL_CONFIGFILE = None
@@ -356,3 +356,35 @@ def pArchiveFile(filename):
 
     rc = pMoveFile(filename, archive_file_name)
     return rc
+
+def pExpandFileSpec(config, spec, category):
+    """
+    Given a file specification and a category, list all files that match the
+    spec and add them to the :dict:`g_files` dict. The `category` variable
+    corresponds to a section in the configuration file that includes an item
+    called 'OriginDir'. The given `spec` is joined to the `category`'s
+    'OriginDir' and all matching files are stored in a list in
+    :dict:`g_files` under the `category` key.
+
+    :param config: `ConfigParser` object
+    :param str spec: A file specification. e.g. '*.*' or 'IDW27*.txt'
+    :param str category: A category that has a section in the source
+                         configuration file
+    """
+    global GLOBAL_PROCFILES
+    if category not in GLOBAL_PROCFILES:
+        GLOBAL_PROCFILES[category] = []
+
+    origindir = config.get(category, 'OriginDir',
+                           fallback=config.get('Defaults', 'OriginDir'))
+    spec = pjoin(origindir, spec)
+    files = glob.glob(spec)
+    LOGGER.info(f"{len(files)} {spec} files to be processed")
+    for file in files:
+        if os.stat(file).st_size > 0:
+            if file not in GLOBAL_PROCFILES[category]:
+                GLOBAL_PROCFILES[category].append(file)
+
+def pExpandFileSpecs(config, specs, category):
+    for spec in specs:
+        pExpandFileSpec(config, spec, category)
