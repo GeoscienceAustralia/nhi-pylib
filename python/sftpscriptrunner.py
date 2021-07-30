@@ -2,7 +2,7 @@ import os
 from os.path import isdir, dirname, realpath, join as pjoin
 from configparser import ConfigParser
 import argparse
-import ftpclient
+import sftpclient
 
 from files import flStartLog
 
@@ -60,12 +60,12 @@ def run(config, script):
     """
 
     LOGGER.info(f"Running FTP script: {script}")
-    GFTP = ftpclient._FTP(config)
+    SFTP = sftpclient._SFTP(config)
 
     with open(script, 'r') as fh:
         for line in fh:
             LOGGER.debug(f"{line}")
-            GFTP.interpretScriptLine(line.rstrip())
+            SFTP.interpretScriptLine(line.rstrip())
     LOGGER.info("Finished FTP script")
 
 
