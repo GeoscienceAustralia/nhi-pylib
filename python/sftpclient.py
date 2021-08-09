@@ -27,6 +27,8 @@ class _SFTP(pysftp.Connection):
     An enhanced :class:`pysftp` class that allows checking of whether
     files have previously been either retrieved from or sent to an SFTP server.
 
+    pysftp: https://pysftp.readthedocs.io/en/release_0.2.9/index.html
+
     """
 
     def __init__(self, config, host='', **kwargs):
@@ -38,9 +40,7 @@ class _SFTP(pysftp.Connection):
         """
         self.cnopts = pysftp.CnOpts()
         self.cnopts.hostkeys = None
-        #super(_SFTP, self).__init__(host=host,
-        #                            cnopts=self.cnopts,
-        #                            **kwargs)
+
         self.gascii = True
         self.gbinary = False
         self.options = ''
@@ -191,9 +191,9 @@ class _SFTP(pysftp.Connection):
         retrieving a file from a remote server.
         :param str date: Date string for the modified time of the file
         :param str direntry: A formatted directory entry returned by the
-        LIST ftp command
-        :param str md5sum: String representation of the MD5 hash of the file (changes
-        if there's any modification to the data in the file)
+            LIST ftp command
+        :param str md5sum: String representation of the MD5 hash of the file
+            (changes if there's any modification to the data in the file)
 
         """
         try:
@@ -387,7 +387,7 @@ class _SFTP(pysftp.Connection):
 
         :param str directory: Path on the remote server
         """
-        self.g_pwd = None # Reset the cached present directory
+        self.g_pwd = None  # Reset the cached present directory
         if self.registered:
             self.resetDirEntry()
         if directory == '':
@@ -493,4 +493,3 @@ def FileName(entry):
     filedetails = entry.split(' ')
     filename = filedetails[-1]
     return (filename, entrytype)
-
