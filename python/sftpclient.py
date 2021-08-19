@@ -75,7 +75,8 @@ class _SFTP(pysftp.Connection):
             os.unlink(self.datfilename)
             rc = True
         except FileNotFoundError:
-            LOGGER.warning(f"Unable to delete existing dat file {self.datfilename}")
+            LOGGER.warning(("Unable to delete existing dat file "
+                            f"{self.datfilename}"))
             rc = False
         return rc
 
@@ -100,7 +101,7 @@ class _SFTP(pysftp.Connection):
         try:
             value = self.g_dir_list[directory][filename]
         except KeyError:
-            LOGGER.warn(f"No directory entry for {directory}: {filename}")
+            LOGGER.warning(f"No directory entry for {directory}: {filename}")
             value = None
         return value
 
@@ -213,13 +214,15 @@ class _SFTP(pysftp.Connection):
         """
         Get a list of previously processed files, and store them in the
         g_processed_files hash.
+
+        :returns: `True` if successful, `False` if the file cannot be opened.
         """
-        rc = 0
+        rc = False
         try:
             fh = open(self.datfilename)
 
         except IOError:
-            LOGGER.warn(f"Couldn't open dat file {self.datfilename}")
+            LOGGER.warning(f"Couldn't open dat file {self.datfilename}")
             return rc
         else:
             LOGGER.info("Getting previously-processed files "
@@ -233,7 +236,7 @@ class _SFTP(pysftp.Connection):
                                        'md5sum', md5sum)
                 self.setProcessedEntry(directory, filename, putget,
                                        'direntry', direntry)
-            rc = 1
+            rc = True
             fh.close()
 
         return rc
@@ -316,7 +319,7 @@ class _SFTP(pysftp.Connection):
                         subdir = d.longname.split(' ')[-1]
                         self.dirlist(os.path.join(directory, subdir), recursive)
         else:
-            LOGGER.warn(f"{directory} is empty")
+            LOGGER.warning(f"{directory} is empty")
 
         return dirlist
 
@@ -391,7 +394,7 @@ class _SFTP(pysftp.Connection):
         if self.registered:
             self.resetDirEntry()
         if directory == '':
-            LOGGER.warn(f"WHY? changing to current directory")
+            LOGGER.warning(f"WHY? changing to current directory")
         try:
             super().chdir(directory)
             LOGGER.debug(f"cd to {directory}")
