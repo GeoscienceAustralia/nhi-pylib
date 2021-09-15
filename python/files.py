@@ -93,7 +93,7 @@ def flProgramVersion(path=""):
     try:
         r = Repo(path, search_parent_directories=True)
     except:
-        LOGGER.warn("No version information available")
+        LOGGER.warning("No version information available")
         return " "
     else:
         try:
