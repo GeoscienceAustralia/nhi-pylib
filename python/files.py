@@ -96,7 +96,11 @@ def flProgramVersion(path=""):
         LOGGER.warn("No version information available")
         return " "
     else:
-        tag = r.tags[-1]
+        try:
+            tag = r.tags[-1]
+        except IndexError:
+            LOGGER.warn("No tagged versions")
+            tag = ""
         commit = str(r.commit('HEAD'))
         return f"{tag} ({commit})"
 
