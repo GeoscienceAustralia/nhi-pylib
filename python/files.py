@@ -17,15 +17,18 @@ if not getattr(__builtins__, "WindowsError", None):
 
 flDateFormat = "%Y-%m-%d %H:%M:%S"
 
+
 def flGetDateFormat():
     global flDateFormat
     return flDateFormat
+
 
 def flSetDateFormat(fmt=None):
     global flDateFormat
     if fmt:
         flDateFormat = fmt
     return flDateFormat
+
 
 def flModulePath(level=1):
     """
@@ -63,26 +66,6 @@ def flModuleName(level=1):
     package = sys._getframe(level).f_code.co_name
     return package
 
-
-def _flProgramVersion(level=None):
-    """
-    Return the __version__ string from the top-level program, where defined.
-
-    If it is not defined, return an empty string.
-
-    :param int level: level in the stack of the main script
-                      (default = maximum level in the stack)
-    :returns: version string (defined as the ``__version__`` global variable)
-
-    """
-    if not level:
-        import inspect
-        level = len(inspect.stack()) - 1
-    f = sys._getframe(level)
-    if '__version__' in f.f_globals:
-        return f.f_globals['__version__']
-    else:
-        return ''
 
 def flProgramVersion(path=""):
     """
@@ -152,7 +135,7 @@ def flGetStat(filename, CHUNK=2 ** 16):
     """
     Get basic statistics of filename - namely directory, name (excluding
     base path), md5sum and the last modified date. Useful for checking
-    if a file has previously been processed. 
+    if a file has previously been processed.
 
     NOTE: This can be slow for large files, as the file is opened and read to
     evaluate the MD5 checksum.
@@ -274,7 +257,7 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
         mode = 'a'
 
     logging.basicConfig(level=getattr(logging, logLevel),
-                        format='%(asctime)s: %(message)s',
+                        format='%(asctime)s: %(levelname)s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S',
                         filename=logFile,
                         filemode=mode)
@@ -287,7 +270,7 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
         if verbose:
             console = logging.StreamHandler(sys.stdout)
             console.setLevel(getattr(logging, logLevel))
-            formatter = logging.Formatter('%(asctime)s: %(message)s',
+            formatter = logging.Formatter('%(asctime)s: %(levelname)s %(message)s',
                                           '%H:%M:%S', )
             console.setFormatter(formatter)
             LOGGER.addHandler(console)

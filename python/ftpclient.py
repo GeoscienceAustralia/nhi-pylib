@@ -168,6 +168,7 @@ class _FTP(FTP):
             fh = open(self.datfilename, 'a')
         except IOError:
             LOGGER.info("Cannot open %s", self.datfilename)
+            rc = 0
         else:
             fh.write('|'.join([directory, filename, putget, date, direntry, md5sum]) + '\n')
             self.setProcessedEntry(directory, filename, putget, 'moddate', date)

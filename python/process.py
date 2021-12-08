@@ -30,6 +30,7 @@ GLOBAL_ARCHDIR = ''
 GLOBAL_DATEFMT = '%Y%m%d%H%M'
 GLOBAL_TIMESTAMP = True
 
+
 def pInit(configFile):
 
     config = configparser.ConfigParser(allow_no_value=True,
@@ -40,7 +41,9 @@ def pInit(configFile):
     pDatFileName(config.get('Files', 'DatFile'))
     pGetProcessedFiles(GLOBAL_DATFILE)
     pArchiveDir(config.get('Files', 'ArchiveDir'))
-    pArchiveDateFormat(config.get('Files', 'ArchiveDateFormat', fallback=GLOBAL_DATEFMT))
+    pArchiveDateFormat(config.get('Files', 'ArchiveDateFormat',
+                                  fallback=GLOBAL_DATEFMT))
+
 
 def pConfigFile(configFile=None):
     """
@@ -57,12 +60,13 @@ def pConfigFile(configFile=None):
     retval = GLOBAL_CONFIGFILE
     return retval
 
+
 def pDatFileName(datFileName=None):
     """
     Get or set the dat file that holds the list of previously-processed files
 
     :param str datFileName: Path to the dat file
-    
+
     :returns: the globally-set value of the dat file path
     """
 
@@ -72,6 +76,7 @@ def pDatFileName(datFileName=None):
         GLOBAL_DATFILE = datFileName
     retval = GLOBAL_DATFILE
     return retval
+
 
 def pSetProcessedEntry(directory, filename, attribute, value):
     """
@@ -90,11 +95,12 @@ def pSetProcessedEntry(directory, filename, attribute, value):
             if attribute in GLOBAL_PROCFILES[directory][filename]:
                 GLOBAL_PROCFILES[directory][filename][attribute] = value
             else:
-                GLOBAL_PROCFILES[directory][filename].update({attribute:value})
+                GLOBAL_PROCFILES[directory][filename].update({attribute: value})
         else:
-            GLOBAL_PROCFILES[directory].update({filename:{attribute:value}})
+            GLOBAL_PROCFILES[directory].update({filename: {attribute: value}})
     else:
-        GLOBAL_PROCFILES.update({directory:{filename:{attribute:value}}})
+        GLOBAL_PROCFILES.update({directory: {filename: {attribute: value}}})
+
 
 def pGetProcessedEntry(directory, filename, attribute):
     """
@@ -157,6 +163,7 @@ def pGetProcessedFiles(datFileName=None):
 
     return rc
 
+
 def pWriteProcessedFile(filename):
     """
     Write the various attributes of the given file to `GLOBAL_DATFILE`
@@ -209,6 +216,7 @@ def pDeleteDatFile():
         LOGGER.warning(f"Cannot remove dat file {GLOBAL_DATFILE}")
     return rc
 
+
 def pAlreadyProcessed(directory, filename, attribute, value):
     """
     Determine if a file has already been processed (i.e. it is stored in
@@ -231,6 +239,7 @@ def pAlreadyProcessed(directory, filename, attribute, value):
     else:
         rc = False
     return rc
+
 
 def pArchiveDir(archive_dir=None):
     """
@@ -299,6 +308,7 @@ def pArchiveTimestamp(timestamp=False):
     rc = GLOBAL_TIMESTAMP
     return rc
 
+
 def pMoveFile(origin, destination):
     """
     Move a single file to an archive directory.
@@ -321,6 +331,7 @@ def pMoveFile(origin, destination):
         rc = 1
 
     return rc
+
 
 def pArchiveFile(filename):
     """
