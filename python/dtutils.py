@@ -32,3 +32,21 @@ def currentCycle(now=datetime.utcnow(), cycle=6, delay=3):
                                         second=0, microsecond=0)
     LOGGER.debug(f"Forecast time: {fcast_time}")
     return fcast_time
+
+
+def roundTime(dt: datetime = None, roundTo: int = 60) -> datetime:
+    """
+    Round a datetime object to any time lapse in seconds. We see occasional
+    issues with the rounding of datetime values in the netcdf files, which can
+    play havoc with timestamp strings.
+
+    :param dt: datetime.datetime object, default now.
+    :param roundTo: Closest number of seconds to round to, default 1 minute.
+
+    :returns: `datetime` object rounded appropriately
+    """
+    if dt == None : dt = datetime.datetime.now()
+    seconds = (dt.replace(tzinfo=None) -
+               dt.replace(hour=0, minute=0, second=0)).seconds
+    rounding = (seconds+roundTo/2) // roundTo * roundTo
+    return dt + datetime.timedelta(0,rounding-seconds,-dt.microsecond)
