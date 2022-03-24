@@ -1,7 +1,35 @@
 import logging
+import re
 from datetime import datetime, timedelta
 
 LOGGER = logging.getLogger('dtutils')
+
+
+def getCutoffTime(cutoff: str):
+    """
+    Determine a cutoff time based on the current time and a given time
+    difference.
+
+    :param str cutoff: a string indicating the time difference. e.g. '-2 hours'
+    would indicate a time two hours before the current time
+
+    :returns: :class:`datetime.datetime` object
+
+    """
+
+    regex = re.compile(r'^((?P<weeks>-?[\.\d]+?)\s+(w|weeks))? *'
+                       r'^((?P<days>-?[\.\d]+?)\s+(d|days))? *'
+                       r'((?P<hours>-?[\.\d]+?)\s+(h|hours))? *'
+                       r'((?P<minutes>-?[\.\d]+?)\s+(m|min))? *'
+                       r'((?P<seconds>-?[\.\d]+?)\s+(s|sec)?)?$')
+
+    parts = regex.match(cutoff)
+    assert parts is not None
+    time_params = {name: float(param)
+                   for name, param in parts.groupdict().items() if param}
+    delta = timedelta(**time_params)
+    cutoffTime = datetime.now() + delta
+    return cutoffTime
 
 
 def currentCycle(now=datetime.utcnow(), cycle=6, delay=3):
@@ -45,8 +73,10 @@ def roundTime(dt: datetime = None, roundTo: int = 60) -> datetime:
 
     :returns: `datetime` object rounded appropriately
     """
-    if dt == None : dt = datetime.datetime.now()
+    if dt is None:
+        dt = datetime.datetime.now()
     seconds = (dt.replace(tzinfo=None) -
                dt.replace(hour=0, minute=0, second=0)).seconds
     rounding = (seconds+roundTo/2) // roundTo * roundTo
-    return dt + datetime.timedelta(0,rounding-seconds,-dt.microsecond)
+    return dt + datetime.timedelta(0, rounding - seconds,
+                                   -dt.microsecond)

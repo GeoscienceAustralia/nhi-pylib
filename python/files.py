@@ -5,7 +5,7 @@ import logging
 import datetime
 import numpy as np
 from time import ctime, localtime, strftime
-from git import Repo
+from git import Repo, InvalidGitRepositoryError
 
 import hashlib
 
@@ -75,7 +75,7 @@ def flProgramVersion(path=""):
     """
     try:
         r = Repo(path, search_parent_directories=True)
-    except:
+    except InvalidGitRepositoryError:
         LOGGER.warning("No version information available")
         return " "
     else:
@@ -154,13 +154,13 @@ def flGetStat(filename, CHUNK=2 ** 16):
     try:
         fh = open(filename)
         fh.close()
-    except:
+    except (IOError, WindowsError):
         LOGGER.exception("Cannot open %s" % (filename))
         raise IOError("Cannot open %s" % (filename))
 
     try:
         directory, fname = os.path.split(filename)
-    except:
+    except TypeError:
         LOGGER.exception('Input file is not a string')
         raise TypeError('Input file is not a string')
 
@@ -270,8 +270,9 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
         if verbose:
             console = logging.StreamHandler(sys.stdout)
             console.setLevel(getattr(logging, logLevel))
-            formatter = logging.Formatter('%(asctime)s: %(levelname)s %(message)s',
-                                          '%H:%M:%S', )
+            formatter = logging.Formatter(
+                '%(asctime)s: %(levelname)s %(message)s',
+                '%H:%M:%S', )
             console.setFormatter(formatter)
             LOGGER.addHandler(console)
 
@@ -306,7 +307,8 @@ def flModDate(filename, dateformat='%Y-%m-%d %H:%M:%S'):
     :returns: File modification date/time as a string
     :rtype: str
 
-    Example: modDate = flModDate( 'C:/foo/bar.csv' , dateformat='%Y-%m-%dT%H:%M:%S' )
+    Example: modDate = flModDate('C:/foo/bar.csv' ,
+                                 dateformat='%Y-%m-%dT%H:%M:%S')
     """
     try:
         si = os.stat(filename)
