@@ -317,7 +317,7 @@ def flModDate(filename, dateformat='%Y-%m-%d %H:%M:%S'):
     if dateformat:
         return strftime(dateformat, moddate)
     else:
-        return moddate
+        return datetime.datetime(*moddate[:6])
 
 
 def flSize(filename):
