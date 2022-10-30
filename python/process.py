@@ -5,9 +5,10 @@
 .. module:: process
     :synopsis: Provides functions to control processing of files. The
                module records details of each file processed in a text file,
-               which can then be looked up at a later time to determin if a file
-               has previously been processed. It uses the MD5 checksum value of
-               the file as the primary indicator of modifications to a file.
+               which can then be looked up at a later time to determin if a
+               file has previously been processed. It uses the MD5 checksum
+               value of the file as the primary indicator of modifications to
+               a file.
 
 .. moduleauthor:: Craig Arthur <craig.arthur@ga.gov.au>
 
@@ -18,6 +19,7 @@ from os.path import join as pjoin
 import logging
 import configparser
 import shutil
+import glob
 
 from files import flGetStat, flModDate
 
@@ -33,8 +35,9 @@ GLOBAL_TIMESTAMP = True
 
 def pInit(configFile):
 
-    config = configparser.ConfigParser(allow_no_value=True,
-                          interpolation=configparser.ExtendedInterpolation())
+    config = configparser.ConfigParser(
+        allow_no_value=True,
+        interpolation=configparser.ExtendedInterpolation())
     config.optionxform = str
     config.read(configFile)
     pConfigFile(configFile)
@@ -78,13 +81,13 @@ def pDatFileName(datFileName=None):
     return retval
 
 
-def pSetProcessedEntry(directory, filename, attribute, value):
+def pSetProcessedEntry(directory, filename, attr, value):
     """
     Update the attribute of the given file with the given value.
 
     :param str directory: Base directory of the file.
     :param str filename: File name.
-    :param str attribute: Name of the file attribute to be updated.
+    :param str attr: Name of the file attr to be updated.
     :param str value: Attribute value.
 
     """
@@ -92,38 +95,38 @@ def pSetProcessedEntry(directory, filename, attribute, value):
     global GLOBAL_PROCFILES
     if directory in GLOBAL_PROCFILES:
         if filename in GLOBAL_PROCFILES[directory]:
-            if attribute in GLOBAL_PROCFILES[directory][filename]:
-                GLOBAL_PROCFILES[directory][filename][attribute] = value
+            if attr in GLOBAL_PROCFILES[directory][filename]:
+                GLOBAL_PROCFILES[directory][filename][attr] = value
             else:
-                GLOBAL_PROCFILES[directory][filename].update({attribute: value})
+                GLOBAL_PROCFILES[directory][filename].update({attr: value})
         else:
-            GLOBAL_PROCFILES[directory].update({filename: {attribute: value}})
+            GLOBAL_PROCFILES[directory].update({filename: {attr: value}})
     else:
-        GLOBAL_PROCFILES.update({directory: {filename: {attribute: value}}})
+        GLOBAL_PROCFILES.update({directory: {filename: {attr: value}}})
 
 
-def pGetProcessedEntry(directory, filename, attribute):
+def pGetProcessedEntry(directory, filename, attr):
     """
     Retrieve the value of an attribute for a file from the
     GLOBAL_PROCFILES dictionary.
 
     :param str directory: Path name of the file.
     :param str filename: File name to retrieve the details of.
-    :param str attribute: Attribute to retrieve.
+    :param str attr: Attribute to retrieve.
 
     :returns: Attribute value
 
     """
-    LOGGER.debug(f"Checking processed files for {filename} with {attribute}")
+    LOGGER.debug(f"Checking processed files for {filename} with {attr}")
     try:
-        value = GLOBAL_PROCFILES[directory][filename][attribute]
+        value = GLOBAL_PROCFILES[directory][filename][attr]
         rc = value
     except KeyError:
         rc = 0
     return rc
 
 
-def pGetProcessedFiles(datFileName=None):
+def pGetProcessedFiles(datFile=None):
     """
     Retrieve a list of processed files from a dat file. This will also
     set the global `GLOBAL_DATFILE`.
@@ -137,16 +140,16 @@ def pGetProcessedFiles(datFileName=None):
     LOGGER.debug("Retrieving previously processed files")
     global GLOBAL_DATFILE
     rc = 0
-    if datFileName:
-        GLOBAL_DATFILE = datFileName
+    if datFile:
+        GLOBAL_DATFILE = datFile
         try:
-            fh = open(datFileName)
+            fh = open(datFile)
 
         except IOError:
-            LOGGER.warning(f"Couldn't open dat file {datFileName}")
+            LOGGER.warning(f"Couldn't open dat file {datFile}")
             return rc
         else:
-            LOGGER.debug(f"Getting previously-processed files from {datFileName}")
+            LOGGER.debug(f"Getting previously-processed files from {datFile}")
             for line in fh:
                 line.rstrip('\n')
                 directory, filename, moddate, md5sum = line.split('|')
@@ -197,6 +200,7 @@ def pWriteProcessedFile(filename):
                         f"Can't record {filename} as processed."))
 
     return rc
+
 
 def pDeleteDatFile():
     """
@@ -262,8 +266,8 @@ def pArchiveDir(archive_dir=None):
         if not os.path.isdir(GLOBAL_ARCHDIR):
             try:
                 os.makedirs(GLOBAL_ARCHDIR)
-            except:
-                LOGGER.exception("Cannot create %s", GLOBAL_ARCHDIR)
+            except OSError:
+                LOGGER.exception(f"Cannot create {GLOBAL_ARCHDIR}")
                 raise OSError
 
     rc = GLOBAL_ARCHDIR
@@ -323,11 +327,11 @@ def pMoveFile(origin, destination):
     try:
         shutil.move(origin, destination)
     except OSError as excmsg:
-        LOGGER.warning("Error moving %s to %s", origin, destination)
+        LOGGER.warning(f"Error moving {origin} to {destination}")
         LOGGER.warning(excmsg)
         rc = 0
     else:
-        LOGGER.debug("%s moved to %s", origin, destination)
+        LOGGER.debug(f"{origin} moved to {destination}")
         rc = 1
 
     return rc
@@ -356,17 +360,18 @@ def pArchiveFile(filename):
             try:
                 os.makedirs(archive_dir)
             except OSError:
-                LOGGER.critcal("Cannot create %s", archive_dir)
+                LOGGER.critcal(f"Cannot create {archive_dir}")
                 raise
 
     if pArchiveTimestamp():
         archive_date = flModDate(filename, GLOBAL_DATEFMT)
-        archive_file_name = pjoin(archive_dir, "%s.%s.%s"%(base, archive_date, ext))
+        archive_file_name = pjoin(archive_dir, f"{base}.{archive_date}.{ext}")
     else:
-        archive_file_name = pjoin(archive_dir, "%s.%s"%(base, ext))
+        archive_file_name = pjoin(archive_dir, f"{base}.{ext}")
 
     rc = pMoveFile(filename, archive_file_name)
     return rc
+
 
 def pExpandFileSpec(config, spec, category):
     """
@@ -395,6 +400,7 @@ def pExpandFileSpec(config, spec, category):
         if os.stat(file).st_size > 0:
             if file not in GLOBAL_PROCFILES[category]:
                 GLOBAL_PROCFILES[category].append(file)
+
 
 def pExpandFileSpecs(config, specs, category):
     for spec in specs:
