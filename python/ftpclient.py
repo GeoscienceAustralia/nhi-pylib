@@ -22,6 +22,7 @@ GLOBAL_PROCFILES = {}
 GASCII = True
 GBINARY = False
 
+
 class _FTP(FTP):
     """
     An enhanced :class:`ftplib.FTP` class that allows checking of whether files
@@ -42,7 +43,7 @@ class _FTP(FTP):
         self.g_dir_fail_bail = 0
         self.g_processed_files = {}
 
-        # Attributes that need to be defined when the 
+        # Attributes that need to be defined when the
         # class is instantiated:
         self.registered = config.getboolean('Options', 'Registered',
                                             fallback=False)
@@ -68,15 +69,15 @@ class _FTP(FTP):
             os.unlink(self.datfilename)
             rc = True
         except FileNotFoundError:
-            LOGGER.warning(f"Unable to delete existing dat file {self.datfilename}")
+            LOGGER.warning(("Unable to delete existing dat file"
+                            f"{self.datfilename}"))
             rc = False
         return rc
-
 
     def binary(self):
         self.gbinary = True
         self.gascii = False
-    
+
     def ascii(self):
         self.gascii = True
         self.gbinary = False
@@ -86,10 +87,10 @@ class _FTP(FTP):
 
     def setDirEntry(self, directory, filename, entry):
         if directory in self.g_dir_list:
-            self.g_dir_list[directory].update({filename:entry})
+            self.g_dir_list[directory].update({filename: entry})
         else:
-            self.g_dir_list.update({directory:{filename:entry}})
-    
+            self.g_dir_list.update({directory: {filename: entry}})
+
     def getDirEntry(self, directory, filename):
         try:
             value = self.g_dir_list[directory][filename]
@@ -99,7 +100,7 @@ class _FTP(FTP):
         return value
 
     def dirList(self, directory):
-        """ 
+        """
         Return whether the directory listing dict contains `directory` as a key
 
         :param str directory: Name of the directory being checked
@@ -120,20 +121,23 @@ class _FTP(FTP):
         retrieving a file from a remote server.
         :param str attribute: Name of the attribute to store. Should be one
         of 'date', 'md5sum' or 'direntry'
-        :param str value: Value of the attribute. 
+        :param str value: Value of the attribute.
         """
 
         if directory in self.g_processed_files:
             if filename in self.g_processed_files[directory]:
                 if putget in self.g_processed_files[directory][filename]:
-                    self.g_processed_files[directory][filename][putget].update({attribute:value})
+                    self.g_processed_files[directory][filename][putget].\
+                        update({attribute: value})
                 else:
-                    self.g_processed_files[directory][filename].update({putget:{attribute:value}})
+                    self.g_processed_files[directory][filename].\
+                        update({putget: {attribute: value}})
             else:
-                self.g_processed_files[directory].update({filename:{putget:{attribute:value}}})
+                self.g_processed_files[directory].\
+                    update({filename: {putget: {attribute: value}}})
         else:
-            self.g_processed_files.update({directory:{filename:{putget:{attribute:value}}}})
-
+            self.g_processed_files.\
+                update({directory: {filename: {putget: {attribute: value}}}})
 
     def getProcessedEntry(self, directory, filename, putget, attribute):
         """
@@ -147,10 +151,11 @@ class _FTP(FTP):
         except KeyError as e:
             LOGGER.debug(f"No entry {e} in list of processed files")
             pass
-        
+
         return value
 
-    def writeProcessedFile(self, directory, filename, putget, date, direntry, md5sum):
+    def writeProcessedFile(self, directory, filename, putget,
+                           date, direntry, md5sum):
         """
         Write the details of a file to a dat file
         :param str directory: Directory where the file is stored
@@ -158,7 +163,7 @@ class _FTP(FTP):
         :param str putget: Either 'put' or 'get', depending whether putting or
         retrieving a file from a remote server.
         :param str date: Date string for the modified time of the file
-        :param str direntry: A formatted directory entry returned by the 
+        :param str direntry: A formatted directory entry returned by the
         LIST ftp command
         :param str md5sum: String representation of the MD5 hash of the file (changes
         if there's any modification to the data in the file)
@@ -181,7 +186,7 @@ class _FTP(FTP):
     def getProcessedFiles(self):
         """
         Get a list of previously processed files, and store them in the
-        g_processed_files hash. 
+        g_processed_files hash.
         """
         rc = 0
         try:
@@ -191,7 +196,8 @@ class _FTP(FTP):
             LOGGER.warn(f"Couldn't open dat file {self.datfilename}")
             return rc
         else:
-            LOGGER.info(f"Getting previously-processed files from {self.datfilename}")
+            LOGGER.info(("Getting previously-processed files from "
+                         f"{self.datfilename}"))
             for line in fh:
                 line.rstrip('\n')
                 directory, filename, putget, moddate, direntry, md5sum = line.split('|')
@@ -203,35 +209,38 @@ class _FTP(FTP):
 
         return rc
 
-
     def get(self, filename, newfilename=None):
         """
         Retrieve a single file
 
-        :param str filename: Name of the file to retrieve from the remote server
-        :param str newfilename: (Optional) store the file locally with a new name.
+        :param str filename: Name of the file to retrieve from the remote
+        server
+        :param str newfilename: (Optional) store the file locally with a new
+        name.
         """
         directory = self.pwd()
         if not self.dirList(directory):
             self.cacheDirList(directory)
-        
+
         direntry = self.getDirEntry(directory, filename)
         processedEntry = self.getProcessedEntry(
             directory, filename, 'get', 'direntry'
         )
         if (processedEntry == direntry) and direntry is not None:
             if self.new_dat_file:
-                self.writeProcessedFile(directory, filename, 'get', '', direntry, '')
+                self.writeProcessedFile(directory, filename,
+                                        'get', '', direntry, '')
             LOGGER.debug(f"{filename} already fetched")
         else:
             LOGGER.info(f"Retrieving {filename}")
             if self.gascii:
                 rc = self.retrlines(filename, newfilename)
-            else: # self.gbinary == True
+            else:  # self.gbinary == True
                 rc = self.retrbinary(filename, newfilename)
             if rc:
                 if direntry:
-                    self.writeProcessedFile(directory, filename, 'get', '', direntry, '')
+                    self.writeProcessedFile(directory, filename,
+                                            'get', '', direntry, '')
                 else:
                     LOGGER.info("Not writing...")
             else:
@@ -248,9 +257,12 @@ class _FTP(FTP):
         :returns: `True` if the transfer was successful, `False` otherwise.
         """
         destfile = newfilename if newfilename != None else filename
+
         with open(destfile, 'w') as fh:
+            def writer(line):
+                fh.write(line + '\n')
             try:
-                ret = super().retrlines(f"RETR {filename}", fh.write)
+                ret = super().retrlines(f"RETR {filename}", writer)
             except Exception as e:
                 LOGGER.warning(f"{e} {filename}")
                 ret = e
@@ -333,9 +345,15 @@ class _FTP(FTP):
             LOGGER.info(retval)
 
     def size(self, filename):
-        try:
-            flsize = super().size(filename)
-        except:
+        """
+        Retrieve file size of a file
+
+        :param str filename: Filename to get size info
+
+        """
+        flsize = super().size(filename)
+        if flsize is None:
+            # FTP.size() returns None on failure, not an exception
             LOGGER.warning(f"Remote size failed: {filename}")
         return flsize
 
@@ -345,7 +363,7 @@ class _FTP(FTP):
 
         :param str directory: Path on the remote server
         """
-        self.g_pwd = None # Reset the cached present directory
+        self.g_pwd = None  # Reset the cached present directory
         if self.registered:
             self.resetDirEntry()
         if directory == '':
@@ -401,18 +419,20 @@ class _FTP(FTP):
                 self.setDirEntry(directory, filename, entry)
         else:
             if self.g_dir_fail_bail < 3:
-                LOGGER.warning(f"Directory {directory} is empty or does not exist")
+                LOGGER.warning((f"Directory {directory} is empty "
+                                "or does not exist"))
                 self.g_dir_fail_bail += 1
             else:
-                LOGGER.exception(f"Directory {directory} is empty or does not exist")
+                LOGGER.exception((f"Directory {directory} is empty "
+                                  "or does not exist"))
                 sys.exit()
 
         return dirlist
 
     def interpretScriptLine(self, line):
         """
-        Interpret a line from an FTP script file and translate it to the appropriate
-        method on an FTP connection.
+        Interpret a line from an FTP script file and translate it to the
+        appropriate method on an FTP connection.
 
         :param str cmd: FTP command
         :param args: Optional arguments to pass to the command.
@@ -423,7 +443,7 @@ class _FTP(FTP):
             myargs = line.split(" ")
             if myargs:
                 cmd = myargs.pop(0)
-            else: 
+            else:
                 return
 
             if re.match("^host$", cmd):
@@ -472,7 +492,6 @@ def fileMatch(pattern, filename, matchcase=True):
         if re.match(regex, filename):
             match = True
     return match
-
 
 
 def FileName(entry):
