@@ -17,11 +17,11 @@ def getCutoffTime(cutoff: str):
 
     """
 
-    regex = re.compile(r'^((?P<weeks>-?[\.\d]+?)\s+(w|weeks))? *'
-                       r'^((?P<days>-?[\.\d]+?)\s+(d|days))? *'
-                       r'((?P<hours>-?[\.\d]+?)\s+(h|hours))? *'
-                       r'((?P<minutes>-?[\.\d]+?)\s+(m|min))? *'
-                       r'((?P<seconds>-?[\.\d]+?)\s+(s|sec)?)?$')
+    regex = re.compile((r'((?P<weeks>-?[\d\.]+?)\s+weeks?)? \s* '
+                        r'((?P<days>-?[\d\.]+?)\s+days?)? \s* '
+                        r'((?P<hours>-?[\d\.]+?)\s+hours?)? \s* '
+                        r'((?P<minutes>-?[\d\.]+?)\s+minutes)? \s* '
+                        r'((?P<seconds>-?[\d\.]+?)\s+seconds?)?'), re.X)
 
     parts = regex.match(cutoff)
     assert parts is not None
@@ -34,7 +34,7 @@ def getCutoffTime(cutoff: str):
 
 def currentCycle(now=datetime.utcnow(), cycle=6, delay=3):
     """
-    Calculate the forecast start time based on the current datetime, 
+    Calculate the forecast start time based on the current datetime,
     how often the forecast updates (the cycle) and the delay between
     the forecast time and when it becomes available
 
