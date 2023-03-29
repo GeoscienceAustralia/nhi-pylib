@@ -179,6 +179,7 @@ def flGetStat(filename, CHUNK=2 ** 16):
         if not chunk:
             break
         m.update(chunk)
+    f.close()
     md5sum = m.hexdigest()
 
     return directory, fname, md5sum, moddate
