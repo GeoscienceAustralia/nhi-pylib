@@ -230,7 +230,7 @@ class _FTP(FTP):
             if self.new_dat_file:
                 self.writeProcessedFile(directory, filename,
                                         'get', '', direntry, '')
-            LOGGER.debug(f"{filename} already fetched")
+            LOGGER.info(f"{filename} already fetched")
         else:
             LOGGER.info(f"Retrieving {filename}")
             if self.gascii:
