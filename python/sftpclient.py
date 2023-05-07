@@ -28,6 +28,12 @@ class _SFTP(pysftp.Connection):
     files have previously been either retrieved from or sent to an SFTP server.
 
     pysftp: https://pysftp.readthedocs.io/en/release_0.2.9/index.html
+    See also: https://sftptogo.com/blog/python-sftp/
+
+    To use a public-private key pair for authentication, we use the
+    `private_key` kwarg to point to the path to the locally-stored private
+    key file.
+
 
     """
 
@@ -36,7 +42,9 @@ class _SFTP(pysftp.Connection):
 
         :param config: a :class:`ConfigParser` object with required settings
         :param str host: host name to connect to
-        :param kwargs: Additional keyword arguments required for the connection
+        :param kwargs: Additional keyword arguments required for the
+        connection. This should include the path to the private key file for
+        connections that use SSH public-private key pair authentication.
         """
         self.cnopts = pysftp.CnOpts()
         self.cnopts.hostkeys = None
