@@ -210,10 +210,15 @@ class _SFTP(pysftp.Connection):
         except IOError:
             LOGGER.info("Cannot open %s", self.datfilename)
         else:
-            fh.write('|'.join([directory, filename, putget, date, direntry.longname, md5sum]) + '\n')
-            self.setProcessedEntry(directory, filename, putget, 'moddate', date)
-            self.setProcessedEntry(directory, filename, putget, 'md5sum', md5sum)
-            self.setProcessedEntry(directory, filename, putget, 'direntry', direntry.longname)
+            fh.write('|'.join([directory, filename,
+                               putget, date, direntry.longname,
+                               md5sum]) + '\n')
+            self.setProcessedEntry(directory, filename,
+                                   putget, 'moddate', date)
+            self.setProcessedEntry(directory, filename,
+                                   putget, 'md5sum', md5sum)
+            self.setProcessedEntry(directory, filename, putget,
+                                   'direntry', direntry.longname)
             fh.close()
             rc = 1
         return rc
@@ -266,7 +271,8 @@ class _SFTP(pysftp.Connection):
         )
         if (processedEntry == direntry.longname) and direntry is not None:
             if self.new_dat_file:
-                self.writeProcessedFile(directory, filename, 'get', '', direntry, '')
+                self.writeProcessedFile(
+                    directory, filename, 'get', '', direntry, '')
             LOGGER.info(f"{filename} already fetched")
         else:
             LOGGER.info(f"Retrieving {filename}")
@@ -276,7 +282,8 @@ class _SFTP(pysftp.Connection):
                 LOGGER.exception(f"Get {filename} failed: {exc}")
             else:
                 if direntry:
-                    self.writeProcessedFile(directory, filename, 'get', '', direntry, '')
+                    self.writeProcessedFile(
+                        directory, filename, 'get', '', direntry, '')
                 else:
                     LOGGER.info("Not writing...")
 
@@ -325,7 +332,8 @@ class _SFTP(pysftp.Connection):
                 for d in dirlist:
                     if d.longname.startswith('d'):
                         subdir = d.longname.split(' ')[-1]
-                        self.dirlist(os.path.join(directory, subdir), recursive)
+                        self.dirlist(os.path.join(directory, subdir),
+                                     recursive)
         else:
             LOGGER.warning(f"{directory} is empty")
 
@@ -344,10 +352,14 @@ class _SFTP(pysftp.Connection):
                 self.setDirEntry(directory, filename, entry)
         else:
             if self.g_dir_fail_bail < 3:
-                LOGGER.warning(f"Directory {directory} is empty or does not exist")
+                LOGGER.warning(
+                    f"Directory {directory} is empty or does not exist"
+                    )
                 self.g_dir_fail_bail += 1
             else:
-                LOGGER.exception(f"Directory {directory} is empty or does not exist")
+                LOGGER.exception(
+                    f"Directory {directory} is empty or does not exist"
+                    )
                 sys.exit()
 
         return dirlist
@@ -406,7 +418,7 @@ class _SFTP(pysftp.Connection):
         try:
             super().chdir(directory)
             LOGGER.debug(f"cd to {directory}")
-        except:
+        except Exception as err:
             LOGGER.exception(f"Failed to change directory: {directory}")
 
     def interpretScriptLine(self, line):
