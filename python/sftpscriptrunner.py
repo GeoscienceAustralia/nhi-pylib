@@ -45,9 +45,10 @@ def main():
     destDir = config.get('Files', 'Destination')
     if not isdir(destDir):
         try:
+            LOGGER.debug(f"Creating {destDir}")
             os.makedirs(destDir)
         except OSError as errmsg:
-            LOGGER.exception(f"Cannot create destination {destDir}")
+            LOGGER.exception(f"Cannot create {destDir}")
             LOGGER.exception(errmsg)
     os.chdir(destDir)
     ftpScript = config.get('Files', 'FTPScript')

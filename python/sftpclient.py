@@ -4,8 +4,6 @@ import sys
 import logging
 import fnmatch
 import pysftp
-from datetime import datetime
-import time
 
 LOGGER = logging.getLogger(__name__)
 
@@ -27,12 +25,17 @@ class _SFTP(pysftp.Connection):
     An enhanced :class:`pysftp` class that allows checking of whether
     files have previously been either retrieved from or sent to an SFTP server.
 
-    pysftp: https://pysftp.readthedocs.io/en/release_0.2.9/index.html
+    pysftp: https://pysftp.readthedocs.io/
     See also: https://sftptogo.com/blog/python-sftp/
 
     To use a public-private key pair for authentication, we use the
     `private_key` kwarg to point to the path to the locally-stored private
-    key file.
+    key file. This is set in the ftp script file, not in the configuration
+    (.ini) file, though this could easily be changed by changing the
+    `self.private_key` attribute in class instatiation to read from the
+    configuration file.
+
+    It is assumed that the host key file is at `~/.ssh/known_hosts`
 
 
     """
