@@ -36,3 +36,10 @@ What's inside
 There's a couple of others, but not really working as intended, or have been superceded.
 
 There's no test suite for this codebase. Errors may not be well handled. No guarantee that it will work out of the box. Use at your own risk.
+
+Requirements
+------------
+
+* gitpython
+* pysftp
+* tendo
