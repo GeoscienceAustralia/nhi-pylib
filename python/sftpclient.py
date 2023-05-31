@@ -186,7 +186,7 @@ class _SFTP(pysftp.Connection):
         """
         value = None
         try:
-            value = self.g_processed_files[directory][filename][putget][attribute]
+            value = self.g_processed_files[directory][filename][putget][attribute]  # noqa: E501
         except KeyError as e:
             LOGGER.debug(f"No entry {e} in list of processed files")
             pass
@@ -245,7 +245,7 @@ class _SFTP(pysftp.Connection):
                         f"from {self.datfilename}")
             for line in fh:
                 line.rstrip('\n')
-                directory, filename, putget, moddate, direntry, md5sum = line.split('|')
+                directory, filename, putget, moddate, direntry, md5sum = line.split('|')  # noqa: E501
                 self.setProcessedEntry(directory, filename, putget,
                                        'moddate', moddate)
                 self.setProcessedEntry(directory, filename, putget,

@@ -7,8 +7,8 @@ One place to store these, so they can be imported quickly into any code.
 Current collection includes one-minute observation data and daily maximum wind
 gust data.
 
-These only define the names and dtypes of the attributes, leaving any parsing of
-dates, NA values, etc. to the user.
+These only define the names and dtypes of the attributes, leaving any parsing
+of dates, NA values, etc. to the user.
 
 
 Use case:
@@ -75,18 +75,19 @@ ONEMINUTENAMES = list(ONEMINUTEDTYPE.keys())
 
 # 2021 version:
 ONEMINUTEDTYPE2021 = {'id': str, 'stnNum': int,
-                  'YYYY': int, "MM": int, "DD": int, "HH": int, "MI": int,
-                  'YYYYl': int, "MMl": int, "DDl": int, "HHl": int, "MIl": int,
-                  'rainfall': float, 'rainq': str, 'rain_duration': float,
-                  'temp': float, 'tempq': str,
-                  'dewpoint': float, 'dewpointq': str,
-                  'rh':float, 'rhq':str,
-                  'windspd':float, 'windspdq':str,
-                  'winddir': float, 'winddirq': str,
-                  'windsd':float, 'windsdq':str,
-                  'windgust': float, 'windgustq': str,
-                  'mslp':float, 'mslpq':str,
-                  'stnp': float, 'stnpq': str, 'end': str}
+                      'YYYY': int, "MM": int, "DD": int, "HH": int, "MI": int,
+                      'YYYYl': int, "MMl": int, "DDl": int, "HHl": int,
+                      'MIl': int,
+                      'rainfall': float, 'rainq': str, 'rain_duration': float,
+                      'temp': float, 'tempq': str,
+                      'dewpoint': float, 'dewpointq': str,
+                      'rh': float, 'rhq': str,
+                      'windspd': float, 'windspdq': str,
+                      'winddir': float, 'winddirq': str,
+                      'windsd': float, 'windsdq': str,
+                      'windgust': float, 'windgustq': str,
+                      'mslp': float, 'mslpq': str,
+                      'stnp': float, 'stnpq': str, 'end': str}
 
 ONEMINUTENAMES2021 = list(ONEMINUTEDTYPE2021.keys())
 
