@@ -88,6 +88,36 @@ def flProgramVersion(path=""):
         return f"{tag} ({commit})"
 
 
+def flGitRepository(filepath: str):
+    """
+    Get basic git repo information for a given file
+
+    :param filepath: Full or relative path of the file
+    :type filepath: str
+    """
+
+    filepath = os.path.abspath(filepath)
+    try:
+        r = Repo(filepath, search_parent_directories=True)
+    except (InvalidGitRepositoryError, TypeError):
+        LOGGER.warn("No version information available")
+        mtime = os.path.getmtime(os.path.realpath(filepath))
+        dt = datetime.fromtimestamp(mtime).strftime(flDateFormat)
+        url = filepath
+        commit = 'unknown'
+        tag = ''
+        return commit, tag, dt, url
+    else:
+        commit = str(r.commit('HEAD'))
+        dt = r.commit('HEAD').committed_datetime.strftime(flDateFormat)
+        root = r.git.rev_parse("--show-toplevel")
+        remote_url = r.remotes.origin.url
+        relfilepath = os.path.relpath(filepath, root)
+        url = remote_url.rstrip('.git') + '/blob/master/' + relfilepath
+        tag = r.tags[-1]
+        return commit, tag, dt, url
+
+
 def flLoadFile(filename, comments='%', delimiter=',', skiprows=0):
     """
     Load a delimited text file -- uses :func:`numpy.genfromtxt`
@@ -342,3 +372,16 @@ def flSize(filename):
         size = si.st_size
 
     return size
+
+
+def flPathTime(path):
+    """
+    Retrieve the modified time of a folder
+
+    :param str file: Full path to a valid folder
+
+    :returns: ISO-format of the modification time of the file
+    """
+    mtime = max(os.stat(root).st_mtime for root, _, _ in os.walk(path))
+    dt = datetime.datetime.fromtimestamp(mtime)
+    return dt.strftime(flDateFormat)
