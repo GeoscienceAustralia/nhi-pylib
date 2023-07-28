@@ -28,24 +28,25 @@ LOGGER = logging.getLogger(__name__)
 GLOBAL_DATFILE = None
 GLOBAL_CONFIGFILE = None
 GLOBAL_PROCFILES = {}
-GLOBAL_ARCHDIR = ''
-GLOBAL_DATEFMT = '%Y%m%d%H%M'
+GLOBAL_ARCHDIR = ""
+GLOBAL_DATEFMT = "%Y%m%d%H%M"
 GLOBAL_TIMESTAMP = True
 
 
 def pInit(configFile):
 
     config = configparser.ConfigParser(
-        allow_no_value=True,
-        interpolation=configparser.ExtendedInterpolation())
+        allow_no_value=True, interpolation=configparser.ExtendedInterpolation()
+    )
     config.optionxform = str
     config.read(configFile)
     pConfigFile(configFile)
-    pDatFileName(config.get('Files', 'DatFile'))
+    pDatFileName(config.get("Files", "DatFile"))
     pGetProcessedFiles(GLOBAL_DATFILE)
-    pArchiveDir(config.get('Files', 'ArchiveDir'))
-    pArchiveDateFormat(config.get('Files', 'ArchiveDateFormat',
-                                  fallback=GLOBAL_DATEFMT))
+    pArchiveDir(config.get("Files", "ArchiveDir"))
+    pArchiveDateFormat(
+        config.get("Files", "ArchiveDateFormat", fallback=GLOBAL_DATEFMT)
+    )
 
 
 def pConfigFile(configFile=None):
@@ -151,12 +152,10 @@ def pGetProcessedFiles(datFile=None):
         else:
             LOGGER.debug(f"Getting previously-processed files from {datFile}")
             for line in fh:
-                line.rstrip('\n')
-                directory, filename, moddate, md5sum = line.split('|')
-                pSetProcessedEntry(directory, filename, 'moddate',
-                                   moddate.rstrip('\n'))
-                pSetProcessedEntry(directory, filename, 'md5sum',
-                                   md5sum.rstrip('\n'))
+                line.rstrip("\n")
+                directory, filename, moddate, md5sum = line.split("|")
+                pSetProcessedEntry(directory, filename, "moddate", moddate.rstrip("\n"))  # noqa E501
+                pSetProcessedEntry(directory, filename, "md5sum", md5sum.rstrip("\n"))  # noqa E501
             rc = 1
             fh.close()
 
@@ -185,19 +184,20 @@ def pWriteProcessedFile(filename):
         directory, fname, md5sum, moddate = flGetStat(filename)
         try:
             LOGGER.debug(f"Opening dat file {GLOBAL_DATFILE} for writing")
-            fh = open(GLOBAL_DATFILE, 'a')
+            fh = open(GLOBAL_DATFILE, "a")
         except IOError:
             LOGGER.info(f"Cannot open {GLOBAL_DATFILE}")
 
         else:
-            pSetProcessedEntry(directory, fname, 'md5sum', md5sum)
-            pSetProcessedEntry(directory, fname, 'moddate', moddate)
-            fh.write('|'.join([directory, fname, moddate, md5sum]) + '\n')
+            pSetProcessedEntry(directory, fname, "md5sum", md5sum)
+            pSetProcessedEntry(directory, fname, "moddate", moddate)
+            fh.write("|".join([directory, fname, moddate, md5sum]) + "\n")
             fh.close()
             rc = 1
     else:
-        LOGGER.warning(("Dat file name not provided. "
-                        f"Can't record {filename} as processed."))
+        LOGGER.warning(
+            ("Dat file name not provided. " f"Can't record {filename} as processed.")  # noqa E501
+        )
 
     return rc
 
@@ -352,7 +352,7 @@ def pArchiveFile(filename):
     path, base = os.path.split(path)
     archive_dir = pArchiveDir()
     LOGGER.debug(f"Archiving {filename} to {archive_dir}")
-    ext = ext.lstrip('.')
+    ext = ext.lstrip(".")
     if archive_dir:
         if os.path.isdir(archive_dir):
             pass
@@ -391,8 +391,9 @@ def pExpandFileSpec(config, spec, category):
     if category not in GLOBAL_PROCFILES:
         GLOBAL_PROCFILES[category] = []
 
-    origindir = config.get(category, 'OriginDir',
-                           fallback=config.get('Defaults', 'OriginDir'))
+    origindir = config.get(
+        category, "OriginDir", fallback=config.get("Defaults", "OriginDir")
+    )
     spec = pjoin(origindir, spec)
     files = glob.glob(spec)
     LOGGER.info(f"{len(files)} {spec} files to be processed")

@@ -12,8 +12,10 @@ import hashlib
 LOGGER = logging.getLogger(__name__)
 
 if not getattr(__builtins__, "WindowsError", None):
+
     class WindowsError(OSError):
         pass
+
 
 flDateFormat = "%Y-%m-%d %H:%M:%S"
 
@@ -45,7 +47,7 @@ def flModulePath(level=1):
     """
     filename = os.path.realpath(sys._getframe(level).f_code.co_filename)
     path, fname = os.path.split(filename)
-    path.replace(os.path.sep, '/')
+    path.replace(os.path.sep, "/")
     base, ext = os.path.splitext(fname)
     return path, base, ext
 
@@ -84,7 +86,7 @@ def flProgramVersion(path=""):
         except IndexError:
             LOGGER.warn("No tagged versions")
             tag = ""
-        commit = str(r.commit('HEAD'))
+        commit = str(r.commit("HEAD"))
         return f"{tag} ({commit})"
 
 
@@ -104,21 +106,21 @@ def flGitRepository(filepath: str):
         mtime = os.path.getmtime(os.path.realpath(filepath))
         dt = datetime.fromtimestamp(mtime).strftime(flDateFormat)
         url = filepath
-        commit = 'unknown'
-        tag = ''
+        commit = "unknown"
+        tag = ""
         return commit, tag, dt, url
     else:
-        commit = str(r.commit('HEAD'))
-        dt = r.commit('HEAD').committed_datetime.strftime(flDateFormat)
+        commit = str(r.commit("HEAD"))
+        dt = r.commit("HEAD").committed_datetime.strftime(flDateFormat)
         root = r.git.rev_parse("--show-toplevel")
         remote_url = r.remotes.origin.url
         relfilepath = os.path.relpath(filepath, root)
-        url = remote_url.rstrip('.git') + '/blob/master/' + relfilepath
+        url = remote_url.rstrip(".git") + "/blob/master/" + relfilepath
         tag = r.tags[-1]
         return commit, tag, dt, url
 
 
-def flLoadFile(filename, comments='%', delimiter=',', skiprows=0):
+def flLoadFile(filename, comments="%", delimiter=",", skiprows=0):
     """
     Load a delimited text file -- uses :func:`numpy.genfromtxt`
 
@@ -130,12 +132,12 @@ def flLoadFile(filename, comments='%', delimiter=',', skiprows=0):
     :type  delimiter: str, int or sequence, optional
 
     """
-    return np.genfromtxt(filename, comments=comments,
-                         delimiter=delimiter,
-                         skip_header=skiprows)
+    return np.genfromtxt(
+        filename, comments=comments, delimiter=delimiter, skip_header=skiprows
+    )
 
 
-def flSaveFile(filename, data, header='', delimiter=',', fmt='%.18e'):
+def flSaveFile(filename, data, header="", delimiter=",", fmt="%.18e"):
     """
     Save data to a file.
 
@@ -155,13 +157,14 @@ def flSaveFile(filename, data, header='', delimiter=',', fmt='%.18e'):
         os.makedirs(directory)
 
     try:
-        np.savetxt(filename, data, header=header, delimiter=delimiter, fmt=fmt,
-                   comments='%')
+        np.savetxt(
+            filename, data, header=header, delimiter=delimiter, fmt=fmt, comments="%"  # noqa E501
+        )
     except TypeError:
-        np.savetxt(filename, data, delimiter=delimiter, fmt=fmt, comments='%')
+        np.savetxt(filename, data, delimiter=delimiter, fmt=fmt, comments="%")
 
 
-def flGetStat(filename, CHUNK=2 ** 16):
+def flGetStat(filename, CHUNK=2**16):
     """
     Get basic statistics of filename - namely directory, name (excluding
     base path), md5sum and the last modified date. Useful for checking
@@ -191,18 +194,18 @@ def flGetStat(filename, CHUNK=2 ** 16):
     try:
         directory, fname = os.path.split(filename)
     except TypeError:
-        LOGGER.exception('Input file is not a string')
-        raise TypeError('Input file is not a string')
+        LOGGER.exception("Input file is not a string")
+        raise TypeError("Input file is not a string")
 
     try:
         si = os.stat(filename)
     except IOError:
-        LOGGER.exception('Input file is not a valid file: %s' % (filename))
-        raise IOError('Input file is not a valid file: %s' % (filename))
+        LOGGER.exception("Input file is not a valid file: %s" % (filename))
+        raise IOError("Input file is not a valid file: %s" % (filename))
 
     moddate = ctime(si.st_mtime)
     m = hashlib.md5()
-    f = open(filename, 'rb')
+    f = open(filename, "rb")
 
     while 1:
         chunk = f.read(CHUNK)
@@ -215,7 +218,7 @@ def flGetStat(filename, CHUNK=2 ** 16):
     return directory, fname, md5sum, moddate
 
 
-def flConfigFile(extension='.ini', prefix='', level=None):
+def flConfigFile(extension=".ini", prefix="", level=None):
     """
     Build a configuration filename (default extension .ini) based on the
     name and path of the function/module calling this function. Can also
@@ -238,6 +241,7 @@ def flConfigFile(extension='.ini', prefix='', level=None):
 
     if not level:
         import inspect
+
         level = len(inspect.stack())
 
     path, base, ext = flModulePath(level)
@@ -268,9 +272,9 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
     if datestamp:
         base, ext = os.path.splitext(logFile)
         curdate = datetime.datetime.now()
-        curdatestr = curdate.strftime('%Y%m%d%H%M')
+        curdatestr = curdate.strftime("%Y%m%d%H%M")
         # The lstrip on the extension is required as splitext leaves it on.
-        logFile = "%s.%s.%s" % (base, curdatestr, ext.lstrip('.'))
+        logFile = "%s.%s.%s" % (base, curdatestr, ext.lstrip("."))
 
     logDir = os.path.dirname(os.path.realpath(logFile))
     if not os.path.isdir(logDir):
@@ -283,15 +287,17 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
             logFile = os.path.join(os.getcwd(), fname)
 
     if newlog:
-        mode = 'w'
+        mode = "w"
     else:
-        mode = 'a'
+        mode = "a"
 
-    logging.basicConfig(level=getattr(logging, logLevel),
-                        format='%(asctime)s: %(levelname)s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S',
-                        filename=logFile,
-                        filemode=mode)
+    logging.basicConfig(
+        level=getattr(logging, logLevel),
+        format="%(asctime)s: %(levelname)s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        filename=logFile,
+        filemode=mode,
+    )
     LOGGER = logging.getLogger()
 
     if len(LOGGER.handlers) < 2:
@@ -302,15 +308,16 @@ def flStartLog(logFile, logLevel, verbose=False, datestamp=False, newlog=True):
             console = logging.StreamHandler(sys.stdout)
             console.setLevel(getattr(logging, logLevel))
             formatter = logging.Formatter(
-                '%(asctime)s: %(levelname)s %(message)s',
-                '%H:%M:%S', )
+                "%(asctime)s: %(levelname)s %(message)s",
+                "%H:%M:%S",
+            )
             console.setFormatter(formatter)
             LOGGER.addHandler(console)
 
     basepath = os.path.dirname(sys.argv[0])
-    LOGGER.info(f'Started log file {logFile} (detail level {logLevel})')
-    LOGGER.info(f'Running {sys.argv[0]} (pid {os.getpid()})')
-    LOGGER.info(f'Program version {flProgramVersion(basepath)}')
+    LOGGER.info(f"Started log file {logFile} (detail level {logLevel})")
+    LOGGER.info(f"Running {sys.argv[0]} (pid {os.getpid()})")
+    LOGGER.info(f"Program version {flProgramVersion(basepath)}")
     return LOGGER
 
 
@@ -328,7 +335,7 @@ def flLogFatalError(tblines):
     sys.exit()
 
 
-def flModDate(filename, dateformat='%Y-%m-%d %H:%M:%S'):
+def flModDate(filename, dateformat="%Y-%m-%d %H:%M:%S"):
     """
     Return the last modified date of the input file
 
@@ -344,8 +351,8 @@ def flModDate(filename, dateformat='%Y-%m-%d %H:%M:%S'):
     try:
         si = os.stat(filename)
     except (IOError, WindowsError):
-        LOGGER.exception('Input file is not a valid file: %s' % (filename))
-        raise IOError('Input file is not a valid file: %s' % (filename))
+        LOGGER.exception("Input file is not a valid file: %s" % (filename))
+        raise IOError("Input file is not a valid file: %s" % (filename))
     moddate = localtime(si.st_mtime)
     if dateformat:
         return strftime(dateformat, moddate)
@@ -366,8 +373,8 @@ def flSize(filename):
     try:
         si = os.stat(filename)
     except (IOError, WindowsError):
-        LOGGER.exception('Input file is not a valid file: %s' % (filename))
-        raise OSError('Input file is not a valid file: %s' % (filename))
+        LOGGER.exception("Input file is not a valid file: %s" % (filename))
+        raise OSError("Input file is not a valid file: %s" % (filename))
     else:
         size = si.st_size
 

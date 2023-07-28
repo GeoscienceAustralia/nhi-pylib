@@ -5,4 +5,3 @@ try:
     me = singleton.SingleInstance()
 except SingleInstanceException:
     raise SingleInstanceException("Already running this process") from None
-    

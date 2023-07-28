@@ -40,7 +40,7 @@ class _SFTP(pysftp.Connection):
 
     """
 
-    def __init__(self, config, host='', **kwargs):
+    def __init__(self, config, host="", **kwargs):
         """
 
         :param config: a :class:`ConfigParser` object with required settings
@@ -54,24 +54,22 @@ class _SFTP(pysftp.Connection):
 
         self.gascii = True
         self.gbinary = False
-        self.options = ''
+        self.options = ""
         self.g_pwd = None
         self.g_use_pwd = True
         self.g_dir_list = {}
         self.g_dir_fail_bail = 0
         self.g_processed_files = {}
-        self.registered = config.getboolean('Options', 'Registered',
-                                            fallback=False)
-        self.datfilename = config.get('Files', 'DatFile')
-        self.new_dat_file = config.getboolean('Files', 'NewDatFile',
-                                              fallback=False)
+        self.registered = config.getboolean("Options", "Registered", fallback=False)  # noqa E501
+        self.datfilename = config.get("Files", "DatFile")
+        self.new_dat_file = config.getboolean("Files", "NewDatFile", fallback=False)  # noqa E501
         self.getProcessedFiles()
         if self.new_dat_file:
             self.DeleteDatFile()
 
         # Messages:
-        self.g_transfer_complete = '226 Transfer complete.'
-        self.g_transfer_failed = '550 Failed to open file.'
+        self.g_transfer_complete = "226 Transfer complete."
+        self.g_transfer_failed = "550 Failed to open file."
         self.password = None
         self.private_key = None
 
@@ -86,8 +84,9 @@ class _SFTP(pysftp.Connection):
             os.unlink(self.datfilename)
             rc = True
         except FileNotFoundError:
-            LOGGER.warning(("Unable to delete existing dat file "
-                            f"{self.datfilename}"))
+            LOGGER.warning(
+                ("Unable to delete existing dat file " f"{self.datfilename}")
+            )
             rc = False
         return rc
 
@@ -149,27 +148,15 @@ class _SFTP(pysftp.Connection):
                     )
                 else:
                     self.g_processed_files[directory][filename].update(
-                        {putget:
-                            {attribute: value}
-                         }
+                        {putget: {attribute: value}}
                     )
             else:
                 self.g_processed_files[directory].update(
-                    {filename:
-                        {putget:
-                            {attribute: value}
-                         }
-                     }
+                    {filename: {putget: {attribute: value}}}
                 )
         else:
             self.g_processed_files.update(
-                {directory:
-                    {filename:
-                        {putget:
-                            {attribute: value}
-                         }
-                     }
-                 }
+                {directory: {filename: {putget: {attribute: value}}}}
             )
 
     def getProcessedEntry(self, directory, filename, putget, attribute):
@@ -186,15 +173,16 @@ class _SFTP(pysftp.Connection):
         """
         value = None
         try:
-            value = self.g_processed_files[directory][filename][putget][attribute]  # noqa: E501
+            value = self.g_processed_files[directory][filename][putget][
+                attribute
+            ]  # noqa: E501
         except KeyError as e:
             LOGGER.debug(f"No entry {e} in list of processed files")
             pass
 
         return value
 
-    def writeProcessedFile(self, directory, filename,
-                           putget, date, direntry, md5sum):
+    def writeProcessedFile(self, directory, filename, putget, date, direntry, md5sum):  # noqa E501
         """
         Write the details of a file to a dat file
         :param str directory: Directory where the file is stored
@@ -209,19 +197,19 @@ class _SFTP(pysftp.Connection):
 
         """
         try:
-            fh = open(self.datfilename, 'a')
+            fh = open(self.datfilename, "a")
         except IOError:
             LOGGER.info("Cannot open %s", self.datfilename)
         else:
-            fh.write('|'.join([directory, filename,
-                               putget, date, direntry.longname,
-                               md5sum]) + '\n')
-            self.setProcessedEntry(directory, filename,
-                                   putget, 'moddate', date)
-            self.setProcessedEntry(directory, filename,
-                                   putget, 'md5sum', md5sum)
-            self.setProcessedEntry(directory, filename, putget,
-                                   'direntry', direntry.longname)
+            fh.write(
+                "|".join([directory, filename, putget, date, direntry.longname, md5sum])  # noqa E501
+                + "\n"
+            )
+            self.setProcessedEntry(directory, filename, putget, "moddate", date)  # noqa E501
+            self.setProcessedEntry(directory, filename, putget, "md5sum", md5sum)  # noqa E501
+            self.setProcessedEntry(
+                directory, filename, putget, "direntry", direntry.longname
+            )
             fh.close()
             rc = 1
         return rc
@@ -241,17 +229,19 @@ class _SFTP(pysftp.Connection):
             LOGGER.warning(f"Couldn't open dat file {self.datfilename}")
             return rc
         else:
-            LOGGER.info("Getting previously-processed files "
-                        f"from {self.datfilename}")
+            LOGGER.info(
+                "Getting previously-processed files " f"from {self.datfilename}"  # noqa E501
+            )
             for line in fh:
-                line.rstrip('\n')
-                directory, filename, putget, moddate, direntry, md5sum = line.split('|')  # noqa: E501
-                self.setProcessedEntry(directory, filename, putget,
-                                       'moddate', moddate)
-                self.setProcessedEntry(directory, filename, putget,
-                                       'md5sum', md5sum)
-                self.setProcessedEntry(directory, filename, putget,
-                                       'direntry', direntry)
+                line.rstrip("\n")
+                directory, filename, putget, moddate, direntry, md5sum = line.split(  # noqa E501
+                    "|"
+                )  # noqa: E501
+                self.setProcessedEntry(directory, filename, putget, "moddate", moddate)  # noqa E501
+                self.setProcessedEntry(directory, filename, putget, "md5sum", md5sum)  # noqa E501
+                self.setProcessedEntry(
+                    directory, filename, putget, "direntry", direntry
+                )
             rc = True
             fh.close()
 
@@ -269,13 +259,10 @@ class _SFTP(pysftp.Connection):
             self.cacheDirList(directory)
 
         direntry = self.getDirEntry(directory, filename)
-        processedEntry = self.getProcessedEntry(
-            directory, filename, 'get', 'direntry'
-        )
+        processedEntry = self.getProcessedEntry(directory, filename, "get", "direntry")  # noqa E501
         if (processedEntry == direntry.longname) and direntry is not None:
             if self.new_dat_file:
-                self.writeProcessedFile(
-                    directory, filename, 'get', '', direntry, '')
+                self.writeProcessedFile(directory, filename, "get", "", direntry, "")  # noqa E501
             LOGGER.info(f"{filename} already fetched")
         else:
             LOGGER.info(f"Retrieving {filename}")
@@ -286,7 +273,8 @@ class _SFTP(pysftp.Connection):
             else:
                 if direntry:
                     self.writeProcessedFile(
-                        directory, filename, 'get', '', direntry, '')
+                        directory, filename, "get", "", direntry, ""
+                    )
                 else:
                     LOGGER.info("Not writing...")
 
@@ -307,11 +295,11 @@ class _SFTP(pysftp.Connection):
             LOGGER.debug(f"mget {inputfile}")
 
         head, tail = os.path.split(inputfile)
-        if head == '':
+        if head == "":
             filepattern = inputfile
         else:
             filepattern = tail
-        if head == '':
+        if head == "":
             path = self.pwd()
         else:
             self.chdir(head)
@@ -320,10 +308,10 @@ class _SFTP(pysftp.Connection):
         for entry in dirlisting:
             filename, filetype = FileName(entry.longname)
 
-            if filetype == 'f':
+            if filetype == "f":
                 if fileMatch(filepattern, filename):
                     self.get(filename, newfilename)
-            elif (filetype == 'd' and recursive):
+            elif filetype == "d" and recursive:
                 self.mget(os.path.join(path, filename), recursive, newfilename)
         return
 
@@ -333,10 +321,9 @@ class _SFTP(pysftp.Connection):
             [LOGGER.debug(d) for d in dirlist]
             if recursive:
                 for d in dirlist:
-                    if d.longname.startswith('d'):
-                        subdir = d.longname.split(' ')[-1]
-                        self.dirlist(os.path.join(directory, subdir),
-                                     recursive)
+                    if d.longname.startswith("d"):
+                        subdir = d.longname.split(" ")[-1]
+                        self.dirlist(os.path.join(directory, subdir), recursive)  # noqa E501
         else:
             LOGGER.warning(f"{directory} is empty")
 
@@ -355,14 +342,10 @@ class _SFTP(pysftp.Connection):
                 self.setDirEntry(directory, filename, entry)
         else:
             if self.g_dir_fail_bail < 3:
-                LOGGER.warning(
-                    f"Directory {directory} is empty or does not exist"
-                    )
+                LOGGER.warning(f"Directory {directory} is empty or does not exist")  # noqa E501
                 self.g_dir_fail_bail += 1
             else:
-                LOGGER.exception(
-                    f"Directory {directory} is empty or does not exist"
-                    )
+                LOGGER.exception(f"Directory {directory} is empty or does not exist")  # noqa E501
                 sys.exit()
 
         return dirlist
@@ -396,7 +379,7 @@ class _SFTP(pysftp.Connection):
 
         """
         if self.registered:
-            retval = '.'
+            retval = "."
         elif self.g_pwd and self.g_use_pwd:
             retval = self.g_pwd
         else:
@@ -416,7 +399,7 @@ class _SFTP(pysftp.Connection):
         self.g_pwd = None  # Reset the cached present directory
         if self.registered:
             self.resetDirEntry()
-        if directory == '':
+        if directory == "":
             LOGGER.warning(f"WHY? changing to current directory")
         try:
             super().chdir(directory)
@@ -452,14 +435,16 @@ class _SFTP(pysftp.Connection):
             elif re.match("^private_key$", cmd):
                 self.private_key = myargs[0]
             elif re.match("^options$", cmd):
-                self.options = ' '.join(myargs)
+                self.options = " ".join(myargs)
             elif re.match("^connect$", cmd, re.I):
-                options = {'username': self.username,
-                           'private_key': self.private_key,
-                           'password': self.password}
-                super(_SFTP, self).__init__(self.hostname,
-                                            cnopts=self.cnopts,
-                                            **options)
+                options = {
+                    "username": self.username,
+                    "private_key": self.private_key,
+                    "password": self.password,
+                }
+                super(_SFTP, self).__init__(
+                    self.hostname, cnopts=self.cnopts, **options
+                )
 
             elif re.match("^ascii$", cmd, re.I):
                 self.gascii = True
@@ -507,15 +492,15 @@ def FileName(entry):
 
     :param str entry: A directory listing entry.
     """
-    if entry.startswith('d'):
-        entrytype = 'd'
-    elif entry.startswith('-'):
-        entrytype = 'f'
+    if entry.startswith("d"):
+        entrytype = "d"
+    elif entry.startswith("-"):
+        entrytype = "f"
     elif re.match(r"^\d{4,4}\-\d{2,2}\-\d{2,2}", entry):
         if re.match(r"\<DIR\>", entry):
-            entrytype = 'd'
+            entrytype = "d"
         else:
-            entrytype = 'f'
-    filedetails = entry.split(' ')
+            entrytype = "f"
+    filedetails = entry.split(" ")
     filename = filedetails[-1]
     return (filename, entrytype)

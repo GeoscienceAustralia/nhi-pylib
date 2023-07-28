@@ -7,17 +7,15 @@ import ftpclient
 from files import flStartLog
 
 import logging
+
 LOGGER = logging.getLogger()
 
 
 def main():
     p = argparse.ArgumentParser()
 
-    p.add_argument('-c', '--config_file',
-                   help="Configuration file")
-    p.add_argument('-v', '--verbose',
-                   help="Verbose output",
-                   action='store_true')
+    p.add_argument("-c", "--config_file", help="Configuration file")
+    p.add_argument("-v", "--verbose", help="Verbose output", action="store_true")  # noqa E501
 
     args = p.parse_args()
     configFile = args.config_file
@@ -25,7 +23,7 @@ def main():
     config = ConfigParser()
     config.read(configFile)
 
-    logFile = config.get('Logging', 'LogFile')
+    logFile = config.get("Logging", "LogFile")
     logdir = dirname(realpath(logFile))
 
     # if log file directory does not exist, create it
@@ -33,16 +31,16 @@ def main():
         try:
             os.makedirs(logdir)
         except OSError:
-            logFile = pjoin(os.getcwd(), 'fetch.log')
+            logFile = pjoin(os.getcwd(), "fetch.log")
 
-    logLevel = config.get('Logging', 'LogLevel', fallback='INFO')
-    verbose = config.getboolean('Logging', 'Verbose', fallback=False)
-    datestamp = config.getboolean('Logging', 'Datestamp', fallback=False)
+    logLevel = config.get("Logging", "LogLevel", fallback="INFO")
+    verbose = config.getboolean("Logging", "Verbose", fallback=False)
+    datestamp = config.getboolean("Logging", "Datestamp", fallback=False)
     if args.verbose:
         verbose = True
     LOGGER = flStartLog(logFile, logLevel, verbose, datestamp)
 
-    destDir = config.get('Files', 'Destination')
+    destDir = config.get("Files", "Destination")
     if not isdir(destDir):
         try:
             os.makedirs(destDir)
@@ -50,7 +48,7 @@ def main():
             LOGGER.exception(f"Cannot create destination {destDir}")
             LOGGER.exception(errmsg)
     os.chdir(destDir)
-    ftpScript = config.get('Files', 'FTPScript')
+    ftpScript = config.get("Files", "FTPScript")
     run(config, ftpScript)
 
 
@@ -62,7 +60,7 @@ def run(config, script):
     LOGGER.info(f"Running FTP script: {script}")
     GFTP = ftpclient._FTP(config)
 
-    with open(script, 'r') as fh:
+    with open(script, "r") as fh:
         for line in fh:
             LOGGER.debug(f"{line}")
             GFTP.interpretScriptLine(line.rstrip())

@@ -2,7 +2,7 @@ import logging
 import re
 from datetime import datetime, timedelta
 
-LOGGER = logging.getLogger('dtutils')
+LOGGER = logging.getLogger("dtutils")
 
 
 def getCutoffTime(cutoff: str):
@@ -17,16 +17,22 @@ def getCutoffTime(cutoff: str):
 
     """
 
-    regex = re.compile((r'((?P<weeks>-?[\d\.]+?)\s+weeks?)? \s* '
-                        r'((?P<days>-?[\d\.]+?)\s+days?)? \s* '
-                        r'((?P<hours>-?[\d\.]+?)\s+hours?)? \s* '
-                        r'((?P<minutes>-?[\d\.]+?)\s+minutes)? \s* '
-                        r'((?P<seconds>-?[\d\.]+?)\s+seconds?)?'), re.X)
+    regex = re.compile(
+        (
+            r"((?P<weeks>-?[\d\.]+?)\s+weeks?)? \s* "
+            r"((?P<days>-?[\d\.]+?)\s+days?)? \s* "
+            r"((?P<hours>-?[\d\.]+?)\s+hours?)? \s* "
+            r"((?P<minutes>-?[\d\.]+?)\s+minutes)? \s* "
+            r"((?P<seconds>-?[\d\.]+?)\s+seconds?)?"
+        ),
+        re.X,
+    )
 
     parts = regex.match(cutoff)
     assert parts is not None
-    time_params = {name: float(param)
-                   for name, param in parts.groupdict().items() if param}
+    time_params = {
+        name: float(param) for name, param in parts.groupdict().items() if param  # noqa E501
+    }
     delta = timedelta(**time_params)
     cutoffTime = datetime.now() + delta
     return cutoffTime
@@ -50,14 +56,16 @@ def currentCycle(now=datetime.utcnow(), cycle=6, delay=3):
     fcast_time = now
     if now.hour < delay:
         # e.g. now.hour = 01 and delay = 3
-        fcast_time = fcast_time - timedelta(cycle/24)
+        fcast_time = fcast_time - timedelta(cycle / 24)
         fcast_hour = (fcast_time.hour // cycle) * cycle
-        fcast_time = fcast_time.replace(hour=fcast_hour, minute=0,
-                                        second=0, microsecond=0)
+        fcast_time = fcast_time.replace(
+            hour=fcast_hour, minute=0, second=0, microsecond=0
+        )
     else:
         fcast_hour = ((fcast_time.hour - delay) // cycle) * cycle
-        fcast_time = fcast_time.replace(hour=fcast_hour, minute=0,
-                                        second=0, microsecond=0)
+        fcast_time = fcast_time.replace(
+            hour=fcast_hour, minute=0, second=0, microsecond=0
+        )
     LOGGER.debug(f"Forecast time: {fcast_time}")
     return fcast_time
 
@@ -75,8 +83,6 @@ def roundTime(dt: datetime = None, roundTo: int = 60) -> datetime:
     """
     if dt is None:
         dt = datetime.datetime.now()
-    seconds = (dt.replace(tzinfo=None) -
-               dt.replace(hour=0, minute=0, second=0)).seconds
-    rounding = (seconds+roundTo/2) // roundTo * roundTo
-    return dt + datetime.timedelta(0, rounding - seconds,
-                                   -dt.microsecond)
+    seconds = (dt.replace(tzinfo=None) - dt.replace(hour=0, minute=0, second=0)).seconds  # noqa E501
+    rounding = (seconds + roundTo / 2) // roundTo * roundTo
+    return dt + datetime.timedelta(0, rounding - seconds, -dt.microsecond)
