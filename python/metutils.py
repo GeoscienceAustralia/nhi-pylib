@@ -447,8 +447,18 @@ def convert(value, inunits, outunits):
         "mmHg": 0.007500616,
         "Pascals": 1.0,
     }
-    inHg = {"kPa": 3.386388667, "hPa": 33.863886667, "Pa": 3386.388666667, "mmHg": 25.4}
-    mmHg = {"kPa": 0.13332239, "hPa": 1.3332239, "Pa": 133.32239, "inHg": 0.0394}
+    inHg = {
+        "kPa": 3.386388667,
+        "hPa": 33.863886667,
+        "Pa": 3386.388666667,
+        "mmHg": 25.4
+    }
+    mmHg = {
+        "kPa": 0.13332239,
+        "hPa": 1.3332239,
+        "Pa": 133.32239,
+        "inHg": 0.0394
+    }
     pascals = {
         "kPa": 0.001,
         "hPa": 0.01,
@@ -577,7 +587,8 @@ def dewPointToWetBulb(T, Td, pressure):
     """
 
     if Td > T:
-        raise ValueError("Dew point cannot be higher than dry bulb temperature")
+        raise ValueError(
+            "Dew point cannot be higher than dry bulb temperature")
 
     Edifference = 1
     incr = 10.0
@@ -586,7 +597,8 @@ def dewPointToWetBulb(T, Td, pressure):
     Es = satVapPr(Td, "hPa")
     while abs(Edifference) > 0.05:
         Ewguess = satVapPr(Tw, "hPa")
-        Eguess = Ewguess - pressure * (T - Tw) * 0.00066 * (1.0 + (0.00115 * Tw))
+        Eguess = Ewguess - pressure * \
+            (T - Tw) * 0.00066 * (1.0 + (0.00115 * Tw))
         Edifference = Es - Eguess
 
         if Edifference == 0:
