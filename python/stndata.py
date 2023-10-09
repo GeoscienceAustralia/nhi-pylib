@@ -89,6 +89,47 @@ ONEMINUTEDTYPE = {
     "temp1maxq": str,
     "temp1min": float,
     "temp1minq": str,
+    "dewpoint": float,
+    "dewpointq": str,
+    "windspd": float,
+    "windspdq": str,
+    "windmin": float,
+    "windminq": str,
+    "winddir": float,
+    "winddirq": str,
+    "windgust": float,
+    "windgustq": str,
+    "mslp": float,
+    "mslpq": str,
+    "stnp": float,
+    "stnpq": str,
+    "end": str,
+}
+
+ONEMINUTENAMES = list(ONEMINUTEDTYPE.keys())
+
+ONEMINUTEDTYPE2022 = {
+    "id": str,
+    "stnNum": int,
+    "YYYY": int,
+    "MM": int,
+    "DD": int,
+    "HH": int,
+    "MI": int,
+    "YYYYl": int,
+    "MMl": int,
+    "DDl": int,
+    "HHl": int,
+    "MIl": int,
+    "rainfall": float,
+    "rainq": str,
+    "rain_duration": float,
+    "temp": float,
+    "tempq": str,
+    "temp1max": float,
+    "temp1maxq": str,
+    "temp1min": float,
+    "temp1minq": str,
     "wbtemp": float,
     "wbtempq": str,
     "dewpoint": float,
@@ -112,7 +153,7 @@ ONEMINUTEDTYPE = {
     "end": str,
 }
 
-ONEMINUTENAMES = list(ONEMINUTEDTYPE.keys())
+ONEMINUTENAMES2022 = list(ONEMINUTEDTYPE2022.keys())
 
 
 # 2021 version:
