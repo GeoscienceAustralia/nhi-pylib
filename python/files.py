@@ -104,7 +104,7 @@ def flGitRepository(filepath: str):
     except (InvalidGitRepositoryError, TypeError):
         LOGGER.warn("No version information available")
         mtime = os.path.getmtime(os.path.realpath(filepath))
-        dt = datetime.fromtimestamp(mtime).strftime(flDateFormat)
+        dt = datetime.datetime.fromtimestamp(mtime).strftime(flDateFormat)
         url = filepath
         commit = "unknown"
         tag = ""
@@ -113,10 +113,18 @@ def flGitRepository(filepath: str):
         commit = str(r.commit("HEAD"))
         dt = r.commit("HEAD").committed_datetime.strftime(flDateFormat)
         root = r.git.rev_parse("--show-toplevel")
-        remote_url = r.remotes.origin.url
-        relfilepath = os.path.relpath(filepath, root)
-        url = remote_url.rstrip(".git") + "/blob/master/" + relfilepath
-        tag = r.tags[-1]
+        try:
+            remote_url = r.remotes.origin.url
+            relfilepath = os.path.relpath(filepath, root)
+            url = remote_url.rstrip(".git") + "/blob/master/" + relfilepath
+        except AttributeError:
+            LOGGER.warn("No remote URL for the repo")
+            url = ""
+        try:
+            tag = r.tags[-1]
+        except IndexError:
+            LOGGER.warn("No tags available for this repo")
+            tag = ""
         return commit, tag, dt, url
 
 
