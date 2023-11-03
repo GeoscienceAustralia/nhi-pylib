@@ -621,3 +621,27 @@ def dewPointToWetBulb(T, Td, pressure):
             Tw = Tw + incr * prevsign
 
     return np.round(Tw, decimals=3)
+
+
+def winddirsd(winddir: np.array) -> float:
+    """
+    Calculate standard deviation of wind direction, using method described by
+    Yamartino (1984).
+
+    Yamartino, R. J., 1984: A Comparison of Several “Single-Pass” Estimators
+    of the Standard Deviation of Wind Direction. J. Appl. Meteor. Climatol.,
+    23, 1362–1366,
+    https://doi.org/10.1175/1520-0450(1984)023<1362:ACOSPE>2.0.CO;2.
+
+    :param winddir: array of wind directions
+    :type winddir: np.array
+    :return: value of the standard deviation of wind direction
+    :rtype: float
+    """
+    sina = np.mean(np.sin(np.deg2rad(winddir)))
+    cosa = np.mean(np.cos(np.deg2rad(winddir)))
+
+    eps2 = 1 - (sina**2 + cosa**2)
+    eps = np.sqrt(eps2)
+    b = 2 / np.sqrt(3) - 1
+    return np.arcsin(eps) * (1 + b * eps**3)
