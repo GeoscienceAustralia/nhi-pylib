@@ -15,7 +15,7 @@ def main():
     p = argparse.ArgumentParser()
 
     p.add_argument("-c", "--config_file", help="Configuration file")
-    p.add_argument("-v", "--verbose", help="Verbose output", action="store_true")  # noqa E501
+    p.add_argument("-v", "--verbose", help="Verbose output", action="store_true")  # noqa: E501
 
     args = p.parse_args()
     configFile = args.config_file

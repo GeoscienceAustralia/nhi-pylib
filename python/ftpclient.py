@@ -31,7 +31,8 @@ class _FTP(FTP):
     """
 
     def __init__(
-        self, config, host="", user="", acct="", timeout=None, source_address=None
+        self, config, host="", user="", acct="",
+        timeout=None, source_address=None
     ):
         super(_FTP, self).__init__(host, user, acct, timeout, source_address)
 
@@ -72,7 +73,7 @@ class _FTP(FTP):
             os.unlink(self.datfilename)
             rc = True
         except FileNotFoundError:
-            LOGGER.warning(("Unable to delete existing dat file" f"{self.datfilename}"))
+            LOGGER.warning(("Unable to delete existing dat file" f"{self.datfilename}"))  # noqa: E501
             rc = False
         return rc
 
@@ -160,7 +161,10 @@ class _FTP(FTP):
 
         return value
 
-    def writeProcessedFile(self, directory, filename, putget, date, direntry, md5sum):
+    def writeProcessedFile(
+            self, directory, filename,
+            putget, date, direntry, md5sum
+            ):
         """
         Write the details of a file to a dat file
         :param str directory: Directory where the file is stored
@@ -264,7 +268,7 @@ class _FTP(FTP):
 
         :returns: `True` if the transfer was successful, `False` otherwise.
         """
-        destfile = newfilename if newfilename != None else filename
+        destfile = newfilename if newfilename is not None else filename
 
         with open(destfile, "w") as fh:
 
@@ -296,7 +300,7 @@ class _FTP(FTP):
 
         :returns: `True` if the transfer was successful, `False` otherwise.
         """
-        destfile = newfilename if newfilename != None else filename
+        destfile = newfilename if newfilename is not None else filename
         with open(destfile, "wb") as fh:
             try:
                 ret = super().retrbinary(f"RETR {filename}", fh.write)
@@ -381,7 +385,7 @@ class _FTP(FTP):
         try:
             super().cwd(directory)
             LOGGER.debug(f"cd to {directory}")
-        except:
+        except Exception:
             LOGGER.exception(f"Failed to change directory: {directory}")
 
     def pwd(self):
